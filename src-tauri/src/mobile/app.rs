@@ -106,6 +106,20 @@ pub fn run() {
                 }
             });
 
+            // Mobile does not use the desktop window setup, so create the root
+            // webview explicitly instead of launching an empty iOS scene.
+            if app.get_webview_window("main").is_none() {
+                tauri::WebviewWindowBuilder::new(
+                    app,
+                    "main",
+                    tauri::WebviewUrl::App("index.html".into()),
+                )
+                .title("codeg")
+                .devtools(true)
+                .build()
+                .map_err(|e| format!("failed to create mobile webview: {e}"))?;
+            }
+
             // Follow-up sub-tasks will:
             //   * start the in-process Axum server bound to 127.0.0.1
             //   * wire the relay outbound client
