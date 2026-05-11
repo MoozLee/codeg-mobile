@@ -994,7 +994,7 @@ dependencies = [
 
 [[package]]
 name = "codeg"
-version = "0.12.1-2"
+version = "0.0.1"
 dependencies = [
  "agent-client-protocol-schema",
  "async-trait",
