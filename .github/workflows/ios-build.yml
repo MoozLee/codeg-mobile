@@ -20,7 +20,7 @@ concurrency:
 jobs:
   build-ios:
     name: Build unsigned iOS IPA
-    runs-on: macos-14
+    runs-on: macos-15
     permissions:
       contents: write
     steps:
