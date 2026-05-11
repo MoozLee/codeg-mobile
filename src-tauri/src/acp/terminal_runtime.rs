@@ -185,8 +185,15 @@ impl TerminalInstance {
             };
 
             if let Some(pid) = child.id() {
+                #[cfg(not(any(target_os = "ios", target_os = "android")))]
                 if let Err(err) = kill_tree::tokio::kill_tree(pid).await {
                     eprintln!("[ACP] kill_tree failed for pid {pid}: {err}");
+                }
+                #[cfg(any(target_os = "ios", target_os = "android"))]
+                {
+                    // kill_tree unavailable on mobile targets; we still exited
+                    // the child above, so recursive teardown is a no-op here.
+                    let _ = pid;
                 }
             }
 

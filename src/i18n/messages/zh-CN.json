@@ -46,6 +46,7 @@
       "system": "系统",
       "chat_channels": "消息渠道",
       "web_service": "Web 服务",
+      "mobile": "移动设备",
       "model_providers": "模型供应商",
       "experts": "专家",
       "quick_messages": "快捷消息"
@@ -2184,6 +2185,50 @@
       "bindFailed": "绑定地址失败"
     }
   },
+  "MobileDevicesSettings": {
+    "sectionTitle": "移动设备",
+    "sectionDescription": "通过端到端加密 relay 配对手机，已配对设备可远程查看会话并发送 prompt。",
+    "newDevice": {
+      "title": "配对新设备",
+      "description": "生成一次性二维码，用 codeg 手机 App 扫码即可完成配对。",
+      "action": "配对新设备",
+      "preparing": "准备中……",
+      "dialogTitle": "扫码配对",
+      "dialogDescription": "打开 codeg 手机 App 扫描该二维码，10 分钟内有效。",
+      "urlLabel": "配对 URL",
+      "qrAlt": "配对二维码",
+      "copy": "复制",
+      "close": "关闭"
+    },
+    "relay": {
+      "title": "Relay 端点",
+      "description": "E2E 加密转发服务（Cloudflare Workers）。留空使用默认占位。",
+      "save": "保存",
+      "current": "当前：{origin}"
+    },
+    "devices": {
+      "title": "已配对设备",
+      "empty": "尚未配对任何设备。",
+      "refresh": "刷新",
+      "lastActive": "{ago}前活跃",
+      "rename": "重命名",
+      "revoke": "移除",
+      "revokedBadge": "已吊销"
+    },
+    "rename": {
+      "title": "重命名设备",
+      "description": "为设备设置便于识别的昵称。",
+      "placeholder": "iPhone 15 Pro",
+      "cancel": "取消",
+      "save": "保存"
+    },
+    "revoke": {
+      "title": "确定移除该设备？",
+      "description": "移除后 {nickname} 将立即失去访问权限，如需恢复需重新扫码配对。",
+      "cancel": "取消",
+      "confirm": "移除"
+    }
+  },
   "DirectoryBrowser": {
     "title": "浏览目录",
     "pathPlaceholder": "输入目录路径...",
@@ -2510,6 +2555,86 @@
         "installFailed": "安装失败",
         "alreadyInstalled": "该宠物已存在"
       }
+    }
+  },
+  "mobile": {
+    "shell": {
+      "title": "codeg"
+    },
+    "host": {
+      "none": "无 daemon",
+      "noneListed": "暂无配对的 daemon",
+      "switchTitle": "切换 daemon",
+      "add": "配对新 daemon"
+    },
+    "nav": {
+      "sessions": "会话",
+      "new": "新建",
+      "pair": "配对",
+      "ariaLabel": "手机底部导航"
+    },
+    "sessions": {
+      "noHost": "配对一个 daemon 后即可查看会话。",
+      "pairAction": "配对 daemon",
+      "searchPlaceholder": "搜索会话",
+      "refresh": "刷新",
+      "empty": "暂无会话。",
+      "untitled": "未命名会话",
+      "lastActive": "{ago} 前活跃"
+    },
+    "session": {
+      "title": "会话",
+      "back": "返回会话列表",
+      "missing": "找不到会话，链接可能已失效。"
+    },
+    "messageStream": {
+      "empty": "还没有消息。"
+    },
+    "toolCall": {
+      "untitled": "工具调用",
+      "emptyPayload": "（无输出）",
+      "status": {
+        "pending": "等待",
+        "in_progress": "执行中",
+        "completed": "完成",
+        "failed": "失败"
+      }
+    },
+    "composer": {
+      "placeholder": "给 agent 发消息...",
+      "send": "发送",
+      "stop": "停止"
+    },
+    "approval": {
+      "title": "agent 请求授权",
+      "allow": "允许",
+      "deny": "拒绝"
+    },
+    "newSession": {
+      "title": "新会话",
+      "noHost": "请先配对一个 daemon。",
+      "agent": "Agent",
+      "cwd": "工作目录",
+      "cwdPlaceholder": "/path/to/project",
+      "cwdHint": "请填写 daemon 所在机器的绝对路径。",
+      "firstPrompt": "第一条 prompt",
+      "firstPromptPlaceholder": "想让 agent 做什么？",
+      "create": "创建会话",
+      "creating": "创建中...",
+      "timeout": "等待 daemon 创建会话超时。"
+    },
+    "pair": {
+      "title": "配对 daemon",
+      "description1": "在桌面端打开 设置 → 手机设备，复制配对 URL。",
+      "description2": "在这里粘贴即可通过 relay 连接此手机。",
+      "urlLabel": "配对 URL",
+      "urlHint": "以 codeg-pair:// 开头",
+      "nicknameLabel": "昵称",
+      "nicknamePlaceholder": "我的 iPhone",
+      "defaultNickname": "Phone",
+      "action": "配对",
+      "pairing": "配对中...",
+      "success": "配对成功，正在跳转。"
     }
   }
 }

@@ -101,9 +101,13 @@ async fn async_main() {
 
     // Build AppState
     let pet_state_handle = codeg_lib::pet_state_mapper::new_pet_state_handle();
+    #[cfg(feature = "relay-client")]
+    let pairing_coordinator =
+        codeg_lib::app_state::default_pairing_coordinator(&data_dir);
     let state = Arc::new(AppState {
         db,
         connection_manager: codeg_lib::app_state::default_connection_manager(),
+        #[cfg(not(any(target_os = "ios", target_os = "android")))]
         terminal_manager: codeg_lib::app_state::default_terminal_manager(),
         event_broadcaster: broadcaster,
         emitter,
@@ -111,6 +115,8 @@ async fn async_main() {
         web_server_state: WebServerState::new(),
         chat_channel_manager: codeg_lib::app_state::default_chat_channel_manager(),
         pet_state: pet_state_handle.clone(),
+        #[cfg(feature = "relay-client")]
+        pairing_coordinator,
     });
 
     // Install bundled expert skills into the central store

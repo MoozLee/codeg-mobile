@@ -531,6 +531,7 @@ pub async fn start_web_server(
             conn: app.state::<crate::db::AppDatabase>().conn.clone(),
         },
         connection_manager: (*app.state::<crate::acp::manager::ConnectionManager>()).clone_ref(),
+        #[cfg(not(any(target_os = "ios", target_os = "android")))]
         terminal_manager: (*app.state::<crate::terminal::manager::TerminalManager>()).clone_ref(),
         event_broadcaster: app
             .state::<Arc<crate::web::event_bridge::WebEventBroadcaster>>()
@@ -546,6 +547,10 @@ pub async fn start_web_server(
             .state::<crate::pet_state_mapper::PetStateHandle>()
             .inner()
             .clone(),
+        #[cfg(feature = "relay-client")]
+        pairing_coordinator: (*app
+            .state::<std::sync::Arc<crate::relay::PairingCoordinator>>())
+        .clone(),
     });
 
     // See do_start_web_server_with_state for rationale on the reset.

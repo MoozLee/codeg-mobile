@@ -964,6 +964,7 @@ mod tests {
             usage: None,
             duration_ms: None,
             model: None,
+            completed_at: None,
         };
 
         let fallback = stable_user_anchor_id_from_parts("conversation-1", timestamp, &blocks);

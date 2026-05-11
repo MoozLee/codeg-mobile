@@ -7,11 +7,14 @@ mod app_error;
 pub mod app_state;
 pub mod chat_channel;
 pub mod commands;
+pub mod crypto;
 pub mod db;
 pub mod git_credential;
 pub mod git_repo;
 pub mod keyring_store;
-mod models;
+#[cfg(feature = "relay-client")]
+pub mod mobile;
+pub mod models;
 mod network;
 mod parsers;
 pub mod paths;
@@ -20,6 +23,9 @@ pub mod pets;
 #[cfg(feature = "tauri-runtime")]
 pub mod preferences;
 pub mod process;
+#[cfg(feature = "relay-client")]
+pub mod relay;
+#[cfg(not(any(target_os = "ios", target_os = "android")))]
 mod terminal;
 pub mod web;
 pub mod workspace_state;
@@ -32,7 +38,10 @@ pub fn sweep_acp_binary_trash() {
     crate::acp::binary_cache::sweep_trash();
 }
 
-#[cfg(feature = "tauri-runtime")]
+#[cfg(all(
+    feature = "tauri-runtime",
+    not(any(target_os = "ios", target_os = "android"))
+))]
 mod tauri_app {
     use std::sync::atomic::{AtomicBool, Ordering};
 
@@ -41,7 +50,8 @@ mod tauri_app {
     use crate::commands::{
         acp as acp_commands, chat_channel as chat_channel_commands, conversations,
         experts as experts_commands, file_io, folder_commands, folders, mcp as mcp_commands,
-        model_provider as model_provider_commands, notification, pet as pet_commands, project_boot,
+        mobile_pairing as mobile_pairing_commands, model_provider as model_provider_commands,
+        notification, pet as pet_commands, project_boot,
         quick_messages as quick_messages_commands, system_settings, terminal as terminal_commands,
         version_control, windows, workspace_state as workspace_state_commands,
     };
@@ -87,7 +97,6 @@ mod tauri_app {
         }
     }
 
-    #[cfg_attr(mobile, tauri::mobile_entry_point)]
     pub fn run() {
         // Apply the WebView2 rendering override before *any* tokio worker
         // exists or any plugin reads the env. See doc comment above.
@@ -152,6 +161,15 @@ mod tauri_app {
                     tauri::async_runtime::block_on(db::init_database(&app_data_dir, app_version))
                         .map_err(|e| e.to_string())?;
                 app.manage(database);
+
+                // Long-lived pairing coordinator: owns the daemon's
+                // Curve25519 keypair (persisted under `app_data_dir`) and
+                // tracks in-flight pairing sessions. Safe to build before
+                // any window — keypair load/create is a cheap filesystem
+                // op and no tokio-specific state is touched.
+                let pairing_coordinator =
+                    crate::app_state::default_pairing_coordinator(&app_data_dir);
+                app.manage(pairing_coordinator);
 
                 // Restore and apply saved system proxy settings before any network operation.
                 let db = app.state::<db::AppDatabase>();
@@ -739,6 +757,12 @@ mod tauri_app {
                 web::get_web_server_status,
                 web::get_web_service_config,
                 web::probe_web_service_port,
+                mobile_pairing_commands::mobile_generate_pairing_offer,
+                mobile_pairing_commands::mobile_list_paired_devices,
+                mobile_pairing_commands::mobile_revoke_paired_device,
+                mobile_pairing_commands::mobile_rename_paired_device,
+                mobile_pairing_commands::mobile_get_relay_origin,
+                mobile_pairing_commands::mobile_set_relay_origin,
             ])
             .build(tauri::generate_context!())
             .expect("error while building tauri application")
@@ -780,5 +804,17 @@ mod tauri_app {
     }
 }
 
-#[cfg(feature = "tauri-runtime")]
+#[cfg(all(
+    feature = "tauri-runtime",
+    not(any(target_os = "ios", target_os = "android"))
+))]
 pub use tauri_app::run;
+
+/// Mobile (iOS/Android) entry point. The `#[tauri::mobile_entry_point]`
+/// attribute is applied here (not on the desktop `tauri_app::run`) so
+/// the Tauri CLI can locate the correct function when building iOS/Android.
+#[cfg(all(feature = "tauri-runtime", any(target_os = "ios", target_os = "android")))]
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn mobile_main() {
+    mobile::run();
+}

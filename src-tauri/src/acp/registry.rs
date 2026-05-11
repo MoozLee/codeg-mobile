@@ -70,6 +70,14 @@ pub fn current_platform() -> &'static str {
     {
         "windows-x86_64"
     }
+    #[cfg(target_os = "ios")]
+    {
+        "ios"
+    }
+    #[cfg(target_os = "android")]
+    {
+        "android"
+    }
 }
 
 pub fn all_acp_agents() -> Vec<AgentType> {

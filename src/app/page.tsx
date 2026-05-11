@@ -3,10 +3,21 @@
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { isDesktop } from "@/lib/platform"
+import { COMPACT_FORM_FACTOR_QUERY } from "@/lib/layout"
 
 export default function Page() {
   const router = useRouter()
   useEffect(() => {
+    // On a compact form factor (phone-sized viewport in web/Tauri Mobile)
+    // drop straight into the mobile shell. Desktop flow is unchanged.
+    if (
+      typeof window !== "undefined" &&
+      !isDesktop() &&
+      window.matchMedia(COMPACT_FORM_FACTOR_QUERY).matches
+    ) {
+      router.replace("/m/sessions")
+      return
+    }
     if (isDesktop()) {
       router.replace("/workspace")
       return

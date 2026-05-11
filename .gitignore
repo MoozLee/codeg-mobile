@@ -25,6 +25,11 @@ next-env.d.ts
 # Monaco editor local files (copied from node_modules)
 public/vs
 
+# Cloudflare relay (separate package, not part of the Next.js / Tauri build)
+relay/node_modules/
+relay/.wrangler/
+relay/dist/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

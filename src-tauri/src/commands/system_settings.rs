@@ -22,6 +22,7 @@ use crate::models::{SystemOpenTarget, SystemRenderingSettings};
 use crate::network::proxy;
 #[cfg(feature = "tauri-runtime")]
 use crate::preferences;
+#[cfg(not(any(target_os = "ios", target_os = "android")))]
 use crate::terminal::manager::resolve_shell;
 
 pub(crate) const SYSTEM_PROXY_SETTINGS_KEY: &str = "system_proxy_settings";
@@ -95,7 +96,7 @@ pub(crate) fn fallback_system_font_families() -> SystemFontFamilyList {
     }
 }
 
-#[cfg(feature = "tauri-runtime")]
+#[cfg(all(feature = "tauri-runtime", not(any(target_os = "ios", target_os = "android"))))]
 pub(crate) fn list_system_font_families_core() -> SystemFontFamilyList {
     SYSTEM_FONT_FAMILY_CACHE
         .get_or_init(|| {
@@ -566,7 +567,10 @@ pub(crate) fn build_available_terminal_shells() -> AvailableTerminalShells {
 
     AvailableTerminalShells {
         options,
+        #[cfg(not(any(target_os = "ios", target_os = "android")))]
         resolved_shell: resolve_shell(),
+        #[cfg(any(target_os = "ios", target_os = "android"))]
+        resolved_shell: String::new(),
     }
 }
 
@@ -595,8 +599,8 @@ pub(crate) async fn load_system_terminal_settings(
     Ok(normalize_terminal_settings(parsed))
 }
 
-#[cfg(feature = "tauri-runtime")]
-#[cfg_attr(feature = "tauri-runtime", tauri::command)]
+#[cfg(all(feature = "tauri-runtime", not(any(target_os = "ios", target_os = "android"))))]
+#[cfg_attr(all(feature = "tauri-runtime", not(any(target_os = "ios", target_os = "android"))), tauri::command)]
 pub async fn list_system_font_families() -> Result<SystemFontFamilyList, AppCommandError> {
     Ok(list_system_font_families_core())
 }

@@ -18,6 +18,9 @@ const eslintConfig = defineConfig([
     "src-tauri/target/**",
     "src-tauri/experts/**",
     "public/vs/**",
+    // Cloudflare relay has its own TS config and test tooling; do not
+    // pull it through the Next.js ESLint pipeline.
+    "relay/**",
   ]),
   eslintConfigPrettier,
   eslintPluginPrettierRecommended,

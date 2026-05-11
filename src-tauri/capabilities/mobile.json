@@ -1,0 +1,23 @@
+{
+  "$schema": "../gen/schemas/mobile-schema.json",
+  "identifier": "mobile",
+  "description": "Capability set for the iOS/Android shell",
+  "platforms": ["iOS", "android"],
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:window:default",
+    "opener:default",
+    "dialog:default",
+    "notification:default",
+    "clipboard-manager:default",
+    "deep-link:default",
+    "barcode-scanner:default",
+    "biometric:default",
+    "haptics:allow-impact-feedback",
+    "haptics:allow-notification-feedback",
+    "haptics:allow-selection-feedback",
+    "haptics:allow-vibrate",
+    "stronghold:default"
+  ]
+}

@@ -2449,7 +2449,10 @@ pub async fn acp_connect(
     // Inject the codeg git credential helper so git invocations issued by
     // the agent (or its child shells) authenticate against the GitHub
     // accounts configured in Settings → Version Control, mirroring what
-    // the built-in terminal already does.
+    // the built-in terminal already does. Mobile targets skip this: no
+    // terminal module is compiled, and desktop-style credential helpers
+    // aren't used on iOS/Android.
+    #[cfg(not(any(target_os = "ios", target_os = "android")))]
     if let Ok(app_data_dir) = app_handle.path().app_data_dir() {
         if let Some(cred_env) = crate::commands::terminal::prepare_credential_env(&app_data_dir) {
             for (key, value) in cred_env {
@@ -2457,6 +2460,8 @@ pub async fn acp_connect(
             }
         }
     }
+    #[cfg(any(target_os = "ios", target_os = "android"))]
+    let _ = &app_handle;
 
     // For OpenClaw: when creating a new conversation (no session_id to resume),
     // signal that we want a fresh transcript via --reset-session.

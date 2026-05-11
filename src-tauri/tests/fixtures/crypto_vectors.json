@@ -1,0 +1,29 @@
+[
+  {
+    "client_secret_hex": "0101010101010101010101010101010101010101010101010101010101010101",
+    "client_pub_hex": "a4e09292b651c278b9772c569f5fa9bb13d906b46ab68c9df9dc2b4409f8a209",
+    "server_secret_hex": "0202020202020202020202020202020202020202020202020202020202020202",
+    "server_pub_hex": "ce8d3ad1ccb633ec7b70c17814a5c76ecd029685050d344745ba05870e587d59",
+    "nonce_hex": "030303030303030303030303030303030303030303030303",
+    "plaintext_utf8": "hello codeg",
+    "expected_frame_base64": "AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDtZnhroVMBi1yMtuMexXlwYtOE2NENlnBQGVB"
+  },
+  {
+    "client_secret_hex": "1111111111111111111111111111111111111111111111111111111111111111",
+    "client_pub_hex": "7b4e909bbe7ffe44c465a220037d608ee35897d31ef972f07f74892cb0f73f13",
+    "server_secret_hex": "2222222222222222222222222222222222222222222222222222222222222222",
+    "server_pub_hex": "0faa684ed28867b97f4a6a2dee5df8ce974e76b7018e3f22a1c4cf2678570f20",
+    "nonce_hex": "333333333333333333333333333333333333333333333333",
+    "plaintext_utf8": "{\"type\":\"ping\",\"ts\":1700000000}",
+    "expected_frame_base64": "MzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzAsHlE0FxywUUFRjUNlOvoU0+uuDOjM9mgsJyTf7W6meJZBPgwDHhlVjxvuevI4E="
+  },
+  {
+    "client_secret_hex": "deadbeefcafebabefeedface0123456789abcdef0123456789abcdef01234567",
+    "client_pub_hex": "05076b86e41e11c4027f0dca72dc83490e75ab7d12fc9358b23d2009985ee530",
+    "server_secret_hex": "0fedcba9876543210fedcba9876543210fedcba9876543210fedcba987654321",
+    "server_pub_hex": "34e077773aadc79a982bca57f3dc2f12f2c29dc61176a2ba0d96847072645f49",
+    "nonce_hex": "cafefacefeedbabe0123456789abcdef0123456789abcdef",
+    "plaintext_utf8": "mobile -> daemon handshake fixture vector",
+    "expected_frame_base64": "yv76zv7tur4BI0VniavN7wEjRWeJq83vTLdCGcIZ5+2TKIf1of3G4CQnERHCJulJE1xLcBcmvSOgYl/K7TN5uifguc4hFe4M0BDuRY5j9foJ"
+  }
+]

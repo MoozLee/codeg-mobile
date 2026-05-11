@@ -1,4 +1,4 @@
-#[cfg(feature = "tauri-runtime")]
+#[cfg(all(feature = "tauri-runtime", not(any(target_os = "ios", target_os = "android"))))]
 const SERVICE_NAME: &str = "codeg";
 
 fn token_key(account_id: &str) -> String {
@@ -11,7 +11,7 @@ fn channel_token_key(channel_id: i32) -> String {
 
 // ── Tauri mode: OS keyring ──
 
-#[cfg(feature = "tauri-runtime")]
+#[cfg(all(feature = "tauri-runtime", not(any(target_os = "ios", target_os = "android"))))]
 pub fn set_token(account_id: &str, token: &str) -> Result<(), String> {
     let entry = keyring::Entry::new(SERVICE_NAME, &token_key(account_id))
         .map_err(|e| format!("keyring init error: {e}"))?;
@@ -20,13 +20,13 @@ pub fn set_token(account_id: &str, token: &str) -> Result<(), String> {
         .map_err(|e| format!("keyring set error: {e}"))
 }
 
-#[cfg(feature = "tauri-runtime")]
+#[cfg(all(feature = "tauri-runtime", not(any(target_os = "ios", target_os = "android"))))]
 pub fn get_token(account_id: &str) -> Option<String> {
     let entry = keyring::Entry::new(SERVICE_NAME, &token_key(account_id)).ok()?;
     entry.get_password().ok()
 }
 
-#[cfg(feature = "tauri-runtime")]
+#[cfg(all(feature = "tauri-runtime", not(any(target_os = "ios", target_os = "android"))))]
 pub fn delete_token(account_id: &str) -> Result<(), String> {
     let entry = keyring::Entry::new(SERVICE_NAME, &token_key(account_id))
         .map_err(|e| format!("keyring init error: {e}"))?;
@@ -39,7 +39,7 @@ pub fn delete_token(account_id: &str) -> Result<(), String> {
 
 // ── Server mode: file-based token store ──
 
-#[cfg(not(feature = "tauri-runtime"))]
+#[cfg(any(not(feature = "tauri-runtime"), target_os = "ios", target_os = "android"))]
 fn tokens_file_path() -> std::path::PathBuf {
     tokens_file_path_for(std::env::var("CODEG_DATA_DIR").ok().as_deref())
 }
@@ -51,7 +51,7 @@ fn tokens_file_path() -> std::path::PathBuf {
 /// don't end up looking for `tokens.json` in the user's repo. Factored
 /// out so tests can exercise path resolution without poking at process
 /// env state.
-#[cfg(not(feature = "tauri-runtime"))]
+#[cfg(any(not(feature = "tauri-runtime"), target_os = "ios", target_os = "android"))]
 fn tokens_file_path_for(env_value: Option<&str>) -> std::path::PathBuf {
     let dir = env_value
         .map(std::path::PathBuf::from)
@@ -63,7 +63,7 @@ fn tokens_file_path_for(env_value: Option<&str>) -> std::path::PathBuf {
     crate::git_credential::absolutize(&dir).join("tokens.json")
 }
 
-#[cfg(not(feature = "tauri-runtime"))]
+#[cfg(any(not(feature = "tauri-runtime"), target_os = "ios", target_os = "android"))]
 fn read_tokens() -> std::collections::HashMap<String, String> {
     let path = tokens_file_path();
     std::fs::read_to_string(&path)
@@ -72,7 +72,7 @@ fn read_tokens() -> std::collections::HashMap<String, String> {
         .unwrap_or_default()
 }
 
-#[cfg(not(feature = "tauri-runtime"))]
+#[cfg(any(not(feature = "tauri-runtime"), target_os = "ios", target_os = "android"))]
 fn write_tokens(tokens: &std::collections::HashMap<String, String>) -> Result<(), String> {
     let path = tokens_file_path();
     if let Some(parent) = path.parent() {
@@ -84,19 +84,19 @@ fn write_tokens(tokens: &std::collections::HashMap<String, String>) -> Result<()
     std::fs::write(&path, json).map_err(|e| format!("failed to write token store: {e}"))
 }
 
-#[cfg(not(feature = "tauri-runtime"))]
+#[cfg(any(not(feature = "tauri-runtime"), target_os = "ios", target_os = "android"))]
 pub fn set_token(account_id: &str, token: &str) -> Result<(), String> {
     let mut tokens = read_tokens();
     tokens.insert(token_key(account_id), token.to_string());
     write_tokens(&tokens)
 }
 
-#[cfg(not(feature = "tauri-runtime"))]
+#[cfg(any(not(feature = "tauri-runtime"), target_os = "ios", target_os = "android"))]
 pub fn get_token(account_id: &str) -> Option<String> {
     read_tokens().get(&token_key(account_id)).cloned()
 }
 
-#[cfg(not(feature = "tauri-runtime"))]
+#[cfg(any(not(feature = "tauri-runtime"), target_os = "ios", target_os = "android"))]
 pub fn delete_token(account_id: &str) -> Result<(), String> {
     let mut tokens = read_tokens();
     tokens.remove(&token_key(account_id));
@@ -106,7 +106,7 @@ pub fn delete_token(account_id: &str) -> Result<(), String> {
 // ── Chat channel token helpers ──
 // Reuse the same storage mechanism (keyring or file) with a different key prefix.
 
-#[cfg(feature = "tauri-runtime")]
+#[cfg(all(feature = "tauri-runtime", not(any(target_os = "ios", target_os = "android"))))]
 pub fn set_channel_token(channel_id: i32, token: &str) -> Result<(), String> {
     let entry = keyring::Entry::new(SERVICE_NAME, &channel_token_key(channel_id))
         .map_err(|e| format!("keyring init error: {e}"))?;
@@ -115,13 +115,13 @@ pub fn set_channel_token(channel_id: i32, token: &str) -> Result<(), String> {
         .map_err(|e| format!("keyring set error: {e}"))
 }
 
-#[cfg(feature = "tauri-runtime")]
+#[cfg(all(feature = "tauri-runtime", not(any(target_os = "ios", target_os = "android"))))]
 pub fn get_channel_token(channel_id: i32) -> Option<String> {
     let entry = keyring::Entry::new(SERVICE_NAME, &channel_token_key(channel_id)).ok()?;
     entry.get_password().ok()
 }
 
-#[cfg(feature = "tauri-runtime")]
+#[cfg(all(feature = "tauri-runtime", not(any(target_os = "ios", target_os = "android"))))]
 pub fn delete_channel_token(channel_id: i32) -> Result<(), String> {
     let entry = keyring::Entry::new(SERVICE_NAME, &channel_token_key(channel_id))
         .map_err(|e| format!("keyring init error: {e}"))?;
@@ -132,19 +132,19 @@ pub fn delete_channel_token(channel_id: i32) -> Result<(), String> {
     }
 }
 
-#[cfg(not(feature = "tauri-runtime"))]
+#[cfg(any(not(feature = "tauri-runtime"), target_os = "ios", target_os = "android"))]
 pub fn set_channel_token(channel_id: i32, token: &str) -> Result<(), String> {
     let mut tokens = read_tokens();
     tokens.insert(channel_token_key(channel_id), token.to_string());
     write_tokens(&tokens)
 }
 
-#[cfg(not(feature = "tauri-runtime"))]
+#[cfg(any(not(feature = "tauri-runtime"), target_os = "ios", target_os = "android"))]
 pub fn get_channel_token(channel_id: i32) -> Option<String> {
     read_tokens().get(&channel_token_key(channel_id)).cloned()
 }
 
-#[cfg(not(feature = "tauri-runtime"))]
+#[cfg(any(not(feature = "tauri-runtime"), target_os = "ios", target_os = "android"))]
 pub fn delete_channel_token(channel_id: i32) -> Result<(), String> {
     let mut tokens = read_tokens();
     tokens.remove(&channel_token_key(channel_id));

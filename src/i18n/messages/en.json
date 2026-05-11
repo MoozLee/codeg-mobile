@@ -46,6 +46,7 @@
       "system": "System",
       "chat_channels": "Chat Channels",
       "web_service": "Web Service",
+      "mobile": "Mobile Devices",
       "model_providers": "Model Providers",
       "experts": "Experts",
       "quick_messages": "Quick Messages"
@@ -2184,6 +2185,50 @@
       "bindFailed": "Failed to bind address"
     }
   },
+  "MobileDevicesSettings": {
+    "sectionTitle": "Mobile Devices",
+    "sectionDescription": "Pair your phone over an end-to-end encrypted relay. Paired devices can view sessions and send prompts remotely.",
+    "newDevice": {
+      "title": "Pair a new device",
+      "description": "Generate a one-time QR code and scan it from the codeg mobile app.",
+      "action": "Pair a new device",
+      "preparing": "Preparing…",
+      "dialogTitle": "Scan to pair",
+      "dialogDescription": "Open the codeg mobile app and scan this QR code. The code expires in 10 minutes.",
+      "urlLabel": "Pairing URL",
+      "qrAlt": "Pairing QR code",
+      "copy": "Copy",
+      "close": "Close"
+    },
+    "relay": {
+      "title": "Relay Endpoint",
+      "description": "Cloudflare Workers relay used for E2E-encrypted transport. Leave blank to use the default placeholder.",
+      "save": "Save",
+      "current": "Current: {origin}"
+    },
+    "devices": {
+      "title": "Paired Devices",
+      "empty": "No devices paired yet.",
+      "refresh": "Refresh",
+      "lastActive": "Last active {ago} ago",
+      "rename": "Rename",
+      "revoke": "Remove",
+      "revokedBadge": "Revoked"
+    },
+    "rename": {
+      "title": "Rename device",
+      "description": "Pick a label to help you identify this device in the list.",
+      "placeholder": "iPhone 15 Pro",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "revoke": {
+      "title": "Remove device?",
+      "description": "{nickname} will immediately lose access. It can pair again by scanning a new QR code.",
+      "cancel": "Cancel",
+      "confirm": "Remove"
+    }
+  },
   "DirectoryBrowser": {
     "title": "Browse Directory",
     "pathPlaceholder": "Enter directory path...",
@@ -2510,6 +2555,86 @@
         "installFailed": "Failed to install pet",
         "alreadyInstalled": "Pet already exists locally"
       }
+    }
+  },
+  "mobile": {
+    "shell": {
+      "title": "codeg"
+    },
+    "host": {
+      "none": "No daemon",
+      "noneListed": "No paired daemons yet",
+      "switchTitle": "Switch daemon",
+      "add": "Pair new daemon"
+    },
+    "nav": {
+      "sessions": "Sessions",
+      "new": "New",
+      "pair": "Pair",
+      "ariaLabel": "Mobile bottom navigation"
+    },
+    "sessions": {
+      "noHost": "Pair a daemon to view your sessions.",
+      "pairAction": "Pair a daemon",
+      "searchPlaceholder": "Search sessions",
+      "refresh": "Refresh",
+      "empty": "No sessions yet.",
+      "untitled": "Untitled session",
+      "lastActive": "Active {ago} ago"
+    },
+    "session": {
+      "title": "Session",
+      "back": "Back to sessions",
+      "missing": "Session not found. The link may be stale."
+    },
+    "messageStream": {
+      "empty": "No messages yet."
+    },
+    "toolCall": {
+      "untitled": "Tool call",
+      "emptyPayload": "(no output)",
+      "status": {
+        "pending": "Pending",
+        "in_progress": "Running",
+        "completed": "Done",
+        "failed": "Failed"
+      }
+    },
+    "composer": {
+      "placeholder": "Message the agent...",
+      "send": "Send",
+      "stop": "Stop"
+    },
+    "approval": {
+      "title": "Agent needs approval",
+      "allow": "Allow",
+      "deny": "Deny"
+    },
+    "newSession": {
+      "title": "New session",
+      "noHost": "Pair a daemon before starting a new session.",
+      "agent": "Agent",
+      "cwd": "Working directory",
+      "cwdPlaceholder": "/path/to/project",
+      "cwdHint": "Enter an absolute path on the daemon machine.",
+      "firstPrompt": "First prompt",
+      "firstPromptPlaceholder": "What should the agent do?",
+      "create": "Create session",
+      "creating": "Creating...",
+      "timeout": "Timed out waiting for the daemon to create the session."
+    },
+    "pair": {
+      "title": "Pair a daemon",
+      "description1": "Open Settings → Mobile Devices on the desktop app and copy the pairing URL.",
+      "description2": "Paste it below to connect this phone via the relay.",
+      "urlLabel": "Pairing URL",
+      "urlHint": "Starts with codeg-pair://",
+      "nicknameLabel": "Nickname",
+      "nicknamePlaceholder": "My iPhone",
+      "defaultNickname": "Phone",
+      "action": "Pair",
+      "pairing": "Pairing...",
+      "success": "Paired. Redirecting to sessions."
     }
   }
 }

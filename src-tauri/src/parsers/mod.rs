@@ -852,6 +852,7 @@ mod tests {
             usage: None,
             duration_ms: None,
             model: None,
+            completed_at: None,
         };
 
         let first = stable_user_anchor_id_from_message(&message);

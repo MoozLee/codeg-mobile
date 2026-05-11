@@ -61,7 +61,7 @@ version = "1.1"
 version = "1.48"
 features = ["full"]
 
-[dependencies.kill_tree]
+[target.'cfg(not(any(target_os = "ios", target_os = "android")))'.dependencies.kill_tree]
 version = "0.2"
 
 [dependencies.tokio-util]

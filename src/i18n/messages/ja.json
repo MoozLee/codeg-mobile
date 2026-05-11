@@ -46,6 +46,7 @@
       "system": "システム",
       "chat_channels": "チャットチャンネル",
       "web_service": "Webサービス",
+      "mobile": "モバイルデバイス",
       "model_providers": "モデルプロバイダー",
       "experts": "エキスパート",
       "quick_messages": "クイックメッセージ"

@@ -287,6 +287,12 @@ fn resolve_app_data_dir() -> Option<std::path::PathBuf> {
     {
         dirs::data_dir().map(|d| d.join("app.codeg"))
     }
+    #[cfg(any(target_os = "ios", target_os = "android"))]
+    {
+        // Mobile targets don't use the git-credential helper; return None
+        // so `prepare_credential_env` becomes a no-op on mobile builds.
+        None
+    }
 }
 
 /// Ensure the GIT_ASKPASS helper script exists in the app data directory.

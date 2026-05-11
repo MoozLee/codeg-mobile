@@ -334,7 +334,8 @@ async fn handle_acp_event_payload(
                 drop(guard);
 
                 let lang = get_lang(db).await;
-                let body = format_completion(&content, tool_count, lang);
+                let mut body = format_completion(&content, tool_count, lang);
+                append_mobile_deep_link(&mut body, conv_id, lang);
 
                 let msg = RichMessage::info(body)
                     .with_title(match lang {
@@ -381,12 +382,15 @@ async fn handle_acp_event_payload(
                 drop(guard);
 
                 let lang = get_lang(db).await;
+                let mut body = format!("[{agent_type}] {message}");
+                append_mobile_deep_link(&mut body, conv_id, lang);
+
                 let msg = RichMessage {
                     title: Some(match lang {
                         Lang::ZhCn | Lang::ZhTw => "Agent 错误".to_string(),
                         _ => "Agent Error".to_string(),
                     }),
-                    body: format!("[{agent_type}] {message}"),
+                    body,
                     fields: Vec::new(),
                     level: MessageLevel::Error,
                 };
@@ -723,5 +727,49 @@ fn truncate_str(s: &str, max: usize) -> String {
     } else {
         let truncated: String = s.chars().take(max.saturating_sub(3)).collect();
         format!("{truncated}...")
+    }
+}
+
+/// Append a `codeg://session?session=<id>` deep link to a notification body.
+///
+/// Paired mobile clients register the `codeg://` URL scheme; tapping the
+/// link from a chat channel opens the codeg mobile app on the specific
+/// session (falling back to the currently active daemon if the user has
+/// multiple daemons paired).
+fn append_mobile_deep_link(body: &mut String, conversation_id: i32, lang: Lang) {
+    let label = match lang {
+        Lang::ZhCn | Lang::ZhTw => "在 codeg mobile 打开",
+        Lang::Ja => "codeg mobile で開く",
+        Lang::Ko => "codeg mobile에서 열기",
+        Lang::Es => "Abrir en codeg mobile",
+        Lang::De => "In codeg mobile öffnen",
+        Lang::Fr => "Ouvrir dans codeg mobile",
+        Lang::Pt => "Abrir no codeg mobile",
+        Lang::Ar => "افتح في codeg mobile",
+        Lang::En => "Open in codeg mobile",
+    };
+    body.push_str(&format!(
+        "\n\n📱 {label}: codeg://session?session={conversation_id}"
+    ));
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn append_mobile_deep_link_adds_scheme_and_id() {
+        let mut body = String::from("done");
+        append_mobile_deep_link(&mut body, 42, Lang::En);
+        assert!(body.contains("codeg://session?session=42"));
+        assert!(body.contains("Open in codeg mobile"));
+    }
+
+    #[test]
+    fn append_mobile_deep_link_respects_language() {
+        let mut body = String::from("完成");
+        append_mobile_deep_link(&mut body, 7, Lang::ZhCn);
+        assert!(body.contains("codeg://session?session=7"));
+        assert!(body.contains("在 codeg mobile 打开"));
     }
 }

@@ -1311,3 +1311,28 @@ export interface ModelProviderInfo {
   created_at: string
   updated_at: string
 }
+
+// ─── Mobile pairing ───
+
+/**
+ * Offer a freshly-generated pairing invite. The `pairing_url` is what a
+ * QR code renders; the daemon also spawns a task that waits on
+ * `<relay_origin>/session/<session_id>/daemon` until the phone connects
+ * (or `expires_at` elapses).
+ */
+export interface PairingOffer {
+  session_id: string
+  pairing_url: string
+  relay_origin: string
+  expires_at: number
+}
+
+export interface PairedDevice {
+  device_id: string
+  nickname: string
+  client_pub_hex: string
+  relay_session_id: string
+  paired_at: number
+  last_active_at: number
+  revoked: boolean
+}

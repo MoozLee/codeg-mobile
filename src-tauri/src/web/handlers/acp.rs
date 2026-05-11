@@ -92,7 +92,9 @@ pub async fn acp_connect(
     // Inject the codeg git credential helper so git invocations issued by
     // the agent (or its child shells) authenticate against the GitHub
     // accounts configured in Settings → Version Control, mirroring what
-    // the built-in terminal already does.
+    // the built-in terminal already does. Mobile targets skip this: they
+    // have no terminal module and git-over-agent isn't a mobile use case.
+    #[cfg(not(any(target_os = "ios", target_os = "android")))]
     if let Some(cred_env) =
         crate::commands::terminal::prepare_credential_env(&state.data_dir)
     {

@@ -759,8 +759,11 @@ pub fn build_router(
         .route(
             "/pet_get_current_state",
             post(handlers::pet::pet_get_current_state),
-        )
-        // ─── Terminal ───
+        );
+
+    // ─── Terminal (desktop/server only; excluded on iOS/Android) ───
+    #[cfg(not(any(target_os = "ios", target_os = "android")))]
+    let api = api
         .route("/terminal_spawn", post(handlers::terminal::terminal_spawn))
         .route("/terminal_write", post(handlers::terminal::terminal_write))
         .route(
@@ -768,7 +771,37 @@ pub fn build_router(
             post(handlers::terminal::terminal_resize),
         )
         .route("/terminal_kill", post(handlers::terminal::terminal_kill))
-        .route("/terminal_list", post(handlers::terminal::terminal_list))
+        .route("/terminal_list", post(handlers::terminal::terminal_list));
+
+    // ─── Mobile pairing (only when relay-client is compiled in) ───
+    #[cfg(feature = "relay-client")]
+    let api = api
+        .route(
+            "/mobile_generate_pairing_offer",
+            post(handlers::mobile_pairing::generate_pairing_offer),
+        )
+        .route(
+            "/mobile_list_paired_devices",
+            post(handlers::mobile_pairing::list_paired_devices),
+        )
+        .route(
+            "/mobile_revoke_paired_device",
+            post(handlers::mobile_pairing::revoke_paired_device),
+        )
+        .route(
+            "/mobile_rename_paired_device",
+            post(handlers::mobile_pairing::rename_paired_device),
+        )
+        .route(
+            "/mobile_get_relay_origin",
+            post(handlers::mobile_pairing::get_mobile_relay_origin),
+        )
+        .route(
+            "/mobile_set_relay_origin",
+            post(handlers::mobile_pairing::set_mobile_relay_origin),
+        );
+
+    let api = api
         // Catch-all
         .fallback(api_not_found)
         .layer(middleware::from_fn(move |req, next| {

@@ -1,0 +1,135 @@
+name: iOS Build
+
+on:
+  push:
+    branches:
+      - "feat/mobile"
+      - "feat/mobile-**"
+    tags:
+      - "mobile-v*"
+  workflow_dispatch:
+
+env:
+  RUST_BACKTRACE: short
+  HUSKY: 0
+
+concurrency:
+  group: ios-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-ios:
+    name: Build unsigned iOS IPA
+    runs-on: macos-14
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Get pnpm store directory
+        id: pnpm-store
+        shell: bash
+        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-store.outputs.path }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install Rust stable with iOS targets
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios,aarch64-apple-ios-sim
+
+      - name: Cache cargo registry and git
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-registry-
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+          shared-key: ios-mobile
+
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli --version "^2" --locked
+
+      - name: Install frontend dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build frontend (static export)
+        run: pnpm build
+
+      - name: Initialize Tauri iOS project (if missing)
+        working-directory: src-tauri
+        run: |
+          if [ ! -d "gen/apple" ]; then
+            cargo tauri ios init --ci
+          else
+            echo "gen/apple already exists, skipping init"
+          fi
+
+      - name: Build unsigned IPA
+        working-directory: src-tauri
+        env:
+          CODE_SIGNING_ALLOWED: "NO"
+          CODE_SIGNING_REQUIRED: "NO"
+        run: cargo tauri ios build --no-sign
+
+      - name: Collect IPA artifacts
+        id: collect
+        shell: bash
+        run: |
+          mkdir -p dist
+          # Tauri iOS output path (v2): src-tauri/gen/apple/build/arm64/*.ipa
+          # Fall back to a recursive find in case the layout shifts between
+          # tauri-cli versions.
+          IPA_FILES=$(find src-tauri/gen/apple/build -name "*.ipa" 2>/dev/null || true)
+          if [ -z "$IPA_FILES" ]; then
+            echo "No IPA produced. Listing gen/apple/build for diagnostics:"
+            find src-tauri/gen/apple -maxdepth 4 -type d -print
+            exit 1
+          fi
+          # Rename to a stable artifact name that includes the ref name
+          # (tag when run on a `mobile-v*` push, branch name otherwise).
+          SAFE_REF="${GITHUB_REF_NAME//\//-}"
+          for f in $IPA_FILES; do
+            cp "$f" "dist/codeg-mobile-${SAFE_REF}-ios-unsigned.ipa"
+          done
+          ls -la dist/
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: codeg-mobile-ios-unsigned
+          path: dist/*.ipa
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Attach IPA to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.ipa
+          fail_on_unmatched_files: true

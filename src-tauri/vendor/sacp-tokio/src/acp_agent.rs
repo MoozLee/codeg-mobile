@@ -231,7 +231,14 @@ impl ChildGuard {
 impl Drop for ChildGuard {
     fn drop(&mut self) {
         if let Some(pid) = self.0.id() {
+            #[cfg(not(any(target_os = "ios", target_os = "android")))]
             let _ = kill_tree::blocking::kill_tree(pid);
+            #[cfg(any(target_os = "ios", target_os = "android"))]
+            {
+                // kill_tree has no iOS/Android impl; fall back to start_kill.
+                let _ = pid;
+                let _ = self.0.start_kill();
+            }
         } else {
             let _ = self.0.start_kill();
         }

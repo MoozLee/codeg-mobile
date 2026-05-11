@@ -443,6 +443,7 @@ pub async fn pet_save_window_state(
     // inside an unchanged transparent window — a 0.5x sprite floating in a
     // 1x window's worth of dead pixels that still capture clicks.
     if scale_changed {
+        #[cfg(not(any(target_os = "ios", target_os = "android")))]
         if let Some(window) = tauri::Manager::get_webview_window(&app, "pet") {
             let s = new_config.scale;
             let _ = window.set_size(tauri::LogicalSize::new(192.0_f64 * s, 208.0_f64 * s));

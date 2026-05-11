@@ -1,0 +1,5 @@
+:HL["/_next/static/chunks/5378be74e416e6dc.css","style"]
+:HL["/_next/static/chunks/d8a48b26a51641b1.css","style"]
+:HL["/_next/static/chunks/5faf33f2f9574414.css","style"]
+:HL["/_next/static/media/70bc3e132a0a741e-s.p.15008bfb.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+0:{"buildId":"Nx8umG35cI3km-RBAnbDG","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"settings","paramType":null,"paramKey":"settings","hasRuntimePrefetch":false,"slots":{"children":{"name":"shortcuts","paramType":null,"paramKey":"shortcuts","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}

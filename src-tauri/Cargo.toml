@@ -17,20 +17,46 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 
 [features]
 default = ["tauri-runtime"]
+# Single runtime feature covering both desktop and mobile. Target-specific
+# dependencies below ensure desktop-only plugins (window-state / updater /
+# single-instance / fix-path-env / fontdb / keyring) are not pulled in on
+# iOS/Android, and mobile plugins (barcode-scanner / deep-link / biometric /
+# etc.) are not pulled in on desktop. This avoids the need to pass `-f`
+# through Xcode, which has no way to pick a different feature when it
+# invokes `cargo tauri ios xcode-script` from a plain GUI Run.
 tauri-runtime = [
     "dep:tauri",
     "dep:tauri-plugin-opener",
     "dep:tauri-plugin-dialog",
-    "dep:fix-path-env",
     "dep:tauri-build",
+    "dep:tauri-plugin-notification",
+    # Desktop-only plugins (in desktop `[target]` section); harmless to list
+    # here because `dep:` activation on a target-gated dep is a no-op on
+    # the wrong target.
+    "dep:fix-path-env",
     "dep:tauri-plugin-window-state",
     "dep:tauri-plugin-updater",
     "dep:tauri-plugin-process",
-    "dep:tauri-plugin-notification",
     "dep:tauri-plugin-single-instance",
     "dep:keyring",
     "dep:fontdb",
+    # Mobile-only plugins (in mobile `[target]` section).
+    "dep:tauri-plugin-barcode-scanner",
+    "dep:tauri-plugin-deep-link",
+    "dep:tauri-plugin-clipboard-manager",
+    "dep:tauri-plugin-biometric",
+    "dep:tauri-plugin-haptics",
+    "dep:tauri-plugin-stronghold",
+    "relay-client",
 ]
+# Kept as an alias of `tauri-runtime` so existing scripts / CI passing
+# `-f mobile-runtime` still work. Feature inclusion is handled by the
+# target-specific `[target.'cfg(...)']` dependency blocks below.
+mobile-runtime = ["tauri-runtime"]
+# Outbound WebSocket client + dispatcher for the Cloudflare relay.
+# Gated so `codeg-server` (no default features) compiles without the
+# extra transport code; desktop and mobile runtimes include it.
+relay-client = []
 
 [[bin]]
 name = "codeg"
@@ -67,18 +93,20 @@ bzip2 = "0.5"
 tar = "0.4"
 zip = "2"
 regex = "1"
-portable-pty = "0.8"
 urlencoding = "2"
-fix-path-env = { git = "https://github.com/tauri-apps/fix-path-env-rs", version = "0.0.0", optional = true }
 sea-orm = { version = "1.1", features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }
 sea-orm-migration = { version = "1.1", features = ["sqlx-sqlite", "runtime-tokio-rustls"] }
 toml = "0.8"
 notify = "6"
 base64 = "0.22"
+crypto_secretbox = { version = "0.1", features = ["std", "salsa20"] }
+rand_core = { version = "0.6", features = ["std"] }
+hex = "0.4"
+x25519-dalek = { version = "2", default-features = false, features = ["static_secrets"] }
+salsa20 = "0.10"
+generic-array = "0.14"
 agent-client-protocol-schema = { version = "0.11", features = ["unstable_session_usage", "unstable_session_fork", "unstable_boolean_config"] }
-kill_tree = { version = "0.2", features = ["tokio"] }
 which = "7"
-keyring = { version = "3", features = ["apple-native", "windows-native", "sync-secret-service"], optional = true }
 axum = { version = "0.8", features = ["ws"] }
 tower-http = { version = "0.6", features = ["fs", "cors"] }
 tokio-tungstenite = { version = "0.26", features = ["native-tls"] }
@@ -89,14 +117,43 @@ qrcode = "0.14"
 image = { version = "0.25", default-features = false, features = ["png", "webp"] }
 include_dir = "0.7"
 sha2 = "0.10"
-fontdb = { version = "0.23", optional = true }
+
+# Desktop-only plugins: Tauri crate itself + keyring + fontdb + fix-path-env +
+# window-state / updater / process / single-instance. All gated on the
+# `tauri-runtime` feature AND cfg(not(mobile)) via `[target]` sections.
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-window-state = { version = "2", optional = true }
 tauri-plugin-updater = { version = "2", optional = true }
 tauri-plugin-process = { version = "2", optional = true }
-tauri-plugin-notification = { version = "2", optional = true }
 tauri-plugin-single-instance = { version = "2", optional = true }
+fix-path-env = { git = "https://github.com/tauri-apps/fix-path-env-rs", version = "0.0.0", optional = true }
+keyring = { version = "3", features = ["apple-native", "windows-native", "sync-secret-service"], optional = true }
+fontdb = { version = "0.23", optional = true }
+# Terminal / PTY support — desktop only. iOS/Android cannot spawn PTYs and
+# pull in `termios` / `ioctl-rs` transitively via `serial-unix`, which does
+# not compile on mobile targets.
+portable-pty = "0.8"
+# Process-tree killer — no iOS implementation in `kill_tree` (it only
+# supports Windows / macOS-desktop / Linux).
+kill_tree = { version = "0.2", features = ["tokio"] }
+
+# Shared desktop + mobile plugin. Lives outside the desktop-only target block
+# so it is also available to mobile on iOS/Android.
+[dependencies.tauri-plugin-notification]
+version = "2"
+optional = true
+
+# Mobile-only plugins (iOS/Android). Gated on target so desktop builds never
+# see them; gated optional on `tauri-runtime` feature so `codeg-server`
+# (no default features) compiles without them.
+[target.'cfg(any(target_os = "ios", target_os = "android"))'.dependencies]
+tauri-plugin-barcode-scanner = { version = "2", optional = true }
+tauri-plugin-deep-link = { version = "2", optional = true }
+tauri-plugin-clipboard-manager = { version = "2", optional = true }
+tauri-plugin-biometric = { version = "2", optional = true }
+tauri-plugin-haptics = { version = "2", optional = true }
+tauri-plugin-stronghold = { version = "2", optional = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 mac-notification-sys = "0.6"
@@ -111,6 +168,8 @@ libc = "0.2"
 [dev-dependencies]
 tempfile = "3"
 tokio = { version = "1", features = ["test-util", "macros", "rt", "sync", "time"] }
+x25519-dalek = { version = "2", default-features = false, features = ["static_secrets"] }
+hex = "0.4"
 
 [patch.crates-io]
 sacp-tokio = { path = "vendor/sacp-tokio" }

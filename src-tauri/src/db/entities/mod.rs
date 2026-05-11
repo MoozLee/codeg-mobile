@@ -8,5 +8,6 @@ pub mod folder;
 pub mod folder_command;
 pub mod model_provider;
 pub mod opened_tab;
+pub mod paired_device;
 pub mod prelude;
 pub mod quick_message;

@@ -20,6 +20,7 @@ import {
   PlugZap,
   Server,
   Settings,
+  Smartphone,
   Sparkles,
 } from "lucide-react"
 import { useTranslations } from "next-intl"
@@ -48,6 +49,7 @@ interface SettingsNavItem {
     | "chat_channels"
     | "system"
     | "web_service"
+    | "mobile"
   icon: ComponentType<{ className?: string }>
 }
 
@@ -106,6 +108,11 @@ const SETTINGS_NAV_ITEMS: SettingsNavItem[] = [
     href: "/settings/web-service",
     labelKey: "web_service",
     icon: Globe,
+  },
+  {
+    href: "/settings/mobile",
+    labelKey: "mobile",
+    icon: Smartphone,
   },
   {
     href: "/settings/system",

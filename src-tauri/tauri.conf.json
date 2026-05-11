@@ -29,7 +29,8 @@
     ],
     "resources": {
       "../out": "web/"
-    }
+    },
+    "iOS": {}
   },
   "plugins": {
     "updater": {

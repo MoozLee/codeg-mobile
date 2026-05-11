@@ -74,6 +74,8 @@ import type {
   ModelProviderInfo,
   PluginCheckSummary,
   QuickMessage,
+  PairingOffer,
+  PairedDevice,
 } from "./types"
 
 export async function listConversations(params?: {
@@ -1986,4 +1988,40 @@ export async function updateModelProvider(params: {
 
 export async function deleteModelProvider(id: number): Promise<void> {
   return getTransport().call("delete_model_provider", { id })
+}
+
+// ─── Mobile pairing ───
+
+export async function mobileGeneratePairingOffer(): Promise<PairingOffer> {
+  return getTransport().call("mobile_generate_pairing_offer")
+}
+
+export async function mobileListPairedDevices(): Promise<PairedDevice[]> {
+  return getTransport().call("mobile_list_paired_devices")
+}
+
+export async function mobileRevokePairedDevice(
+  deviceId: string
+): Promise<void> {
+  return getTransport().call("mobile_revoke_paired_device", {
+    deviceId,
+  })
+}
+
+export async function mobileRenamePairedDevice(
+  deviceId: string,
+  nickname: string
+): Promise<void> {
+  return getTransport().call("mobile_rename_paired_device", {
+    deviceId,
+    nickname,
+  })
+}
+
+export async function mobileGetRelayOrigin(): Promise<string> {
+  return getTransport().call("mobile_get_relay_origin")
+}
+
+export async function mobileSetRelayOrigin(origin: string): Promise<string> {
+  return getTransport().call("mobile_set_relay_origin", { origin })
 }
