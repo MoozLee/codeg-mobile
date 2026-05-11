@@ -114,7 +114,6 @@ pub fn run() {
                     "main",
                     tauri::WebviewUrl::App("index.html".into()),
                 )
-                .title("codeg")
                 .devtools(true)
                 .build()
                 .map_err(|e| format!("failed to create mobile webview: {e}"))?;
