@@ -8,11 +8,11 @@ import { COMPACT_FORM_FACTOR_QUERY } from "@/lib/layout"
 export default function Page() {
   const router = useRouter()
   useEffect(() => {
-    // On a compact form factor (phone-sized viewport in web/Tauri Mobile)
-    // drop straight into the mobile shell. Desktop flow is unchanged.
+    // On a compact form factor, drop straight into the mobile shell.
+    // Tauri mobile reports `isDesktop()` as true because it is still a Tauri
+    // webview, so the viewport check must win before the desktop branch.
     if (
       typeof window !== "undefined" &&
-      !isDesktop() &&
       window.matchMedia(COMPACT_FORM_FACTOR_QUERY).matches
     ) {
       router.replace("/m/sessions")
