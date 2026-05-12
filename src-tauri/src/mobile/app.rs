@@ -24,6 +24,7 @@ use crate::app_state::{
     default_chat_channel_manager, default_connection_manager, default_pairing_coordinator,
     AppState,
 };
+use crate::commands::system_settings;
 use crate::db;
 use crate::pet_state_mapper;
 use crate::web::event_bridge::{EventEmitter, WebEventBroadcaster};
@@ -55,6 +56,10 @@ pub fn run() {
         );
 
     builder
+        .invoke_handler(tauri::generate_handler![
+            system_settings::get_system_language_settings,
+            system_settings::update_system_language_settings,
+        ])
         .setup(|app| {
             use tauri::Manager;
             let app_data_dir = app
