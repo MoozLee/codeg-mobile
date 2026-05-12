@@ -53,6 +53,10 @@ tauri-runtime = [
 # `-f mobile-runtime` still work. Feature inclusion is handled by the
 # target-specific `[target.'cfg(...)']` dependency blocks below.
 mobile-runtime = ["tauri-runtime"]
+# Enables Tauri's production custom-protocol asset loader for release builds.
+# The generated iOS Xcode script uses this so CI IPAs load bundled static files
+# instead of proxying `WebviewUrl::App` through `build.devUrl`.
+custom-protocol = ["tauri/custom-protocol"]
 # Outbound WebSocket client + dispatcher for the Cloudflare relay.
 # Gated so `codeg-server` (no default features) compiles without the
 # extra transport code; desktop and mobile runtimes include it.
