@@ -20,15 +20,41 @@ use sha2::Digest;
 use tauri::Emitter;
 use tauri_plugin_deep_link::DeepLinkExt;
 
+use crate::app_error::AppCommandError;
 use crate::app_state::{
-    default_chat_channel_manager, default_connection_manager, default_pairing_coordinator,
-    AppState,
+    default_chat_channel_manager, default_connection_manager, default_pairing_coordinator, AppState,
 };
 use crate::commands::system_settings;
 use crate::db;
+use crate::models::system::AppLocale;
+use crate::models::SystemFontFamilyList;
 use crate::pet_state_mapper;
 use crate::web::event_bridge::{EventEmitter, WebEventBroadcaster};
 use crate::web::WebServerState;
+
+/// Mobile-safe fallback for desktop font discovery.
+#[tauri::command]
+async fn list_system_font_families() -> Result<SystemFontFamilyList, AppCommandError> {
+    Ok(system_settings::fallback_system_font_families())
+}
+
+/// Mobile no-op for desktop window chrome positioning.
+#[tauri::command]
+async fn update_traffic_light_position(_zoom: f64) -> Result<(), AppCommandError> {
+    Ok(())
+}
+
+/// Mobile no-op for desktop native window background synchronization.
+#[tauri::command]
+async fn update_appearance_mode(_mode: String) -> Result<(), AppCommandError> {
+    Ok(())
+}
+
+/// Mobile no-op for desktop tray menu localization.
+#[tauri::command]
+async fn set_tray_locale(_locale: AppLocale) -> Result<(), AppCommandError> {
+    Ok(())
+}
 
 /// Tauri mobile entry point. Wired from `lib.rs` via `#[cfg_attr(mobile, tauri::mobile_entry_point)]`.
 ///
@@ -59,6 +85,12 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             system_settings::get_system_language_settings,
             system_settings::update_system_language_settings,
+            system_settings::get_system_font_settings,
+            system_settings::update_system_font_settings,
+            list_system_font_families,
+            update_traffic_light_position,
+            update_appearance_mode,
+            set_tray_locale,
         ])
         .setup(|app| {
             use tauri::Manager;
@@ -104,9 +136,7 @@ pub fn run() {
                 for url in event.urls() {
                     let url_str = url.to_string();
                     if let Err(e) = app_handle.emit("deep-link", &url_str) {
-                        eprintln!(
-                            "[mobile] failed to forward deep link {url_str} to webview: {e}"
-                        );
+                        eprintln!("[mobile] failed to forward deep link {url_str} to webview: {e}");
                     }
                 }
             });
